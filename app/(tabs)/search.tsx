@@ -1,0 +1,91 @@
+import SearchBar from "@/components/SearchBar";
+import SunCard from "@/components/SunCard";
+import { images } from "@/constants/images";
+import { fetchMovies } from '@/services/apiPlaceholder';
+import useFetch from '@/services/useFetch';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
+
+
+const search = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const {
+        data: movies,
+        loading,
+        error,
+        refetch: loadMovies,
+        reset,
+    } = useFetch(() => fetchMovies({ query: searchQuery }), false) //autoFetch = false - for user search first
+
+    useEffect(() => {
+        const timeoutId = setTimeout(async () => { // to wait for the user to type
+            if (searchQuery.trim()) {
+                await loadMovies();
+            } else {
+                reset()
+            }
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
+
+
+    return (
+        <View className="flex-1 bg-white">
+            <Image source={images.bg} className="flex-1 absolute w-full z-0" resizeMode='cover' />
+            <FlatList
+                data={movies}
+                renderItem={({ item }) => <SunCard {...item} />}
+                keyExtractor={(item) => item.id.toString()}
+                className='px-5'
+                numColumns={3}
+                columnWrapperStyle={{
+                    justifyContent: 'flex-start',
+                    gap: 16,
+                    marginVertical: 16
+                }}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                ListHeaderComponent={
+                    <>
+                        <View className='w-full flex-row justify-center mt-20 items-center'>
+                            <Image source={images.logoMain} className='w-16 h-16' />
+                        </View>
+                        <View className='my-5'>
+                            <SearchBar
+                                placeholder='Search ...'
+                                value={searchQuery}
+                                onChangeText={(text: string) => setSearchQuery(text)}
+                            />
+                        </View>
+                        {loading && (
+                            <ActivityIndicator size='large' color="#0000FF" className='my-3' />
+                        )}
+                        {error && (
+                            <Text className='text-red-500 px-5 my-3'>Error: {error.message}</Text>
+                        )}
+
+                        {!loading && !error && searchQuery.trim() && (
+                            <Text className='text-xl text-black font-bold'>Search results for{' '}
+                                <Text className='text-accent'>{searchQuery}</Text>
+                            </Text>
+                        )}
+                    </>
+                }
+                ListEmptyComponent={
+                    !loading && !error ? (
+                        <View className='mt-10 px-5'>
+                            <Text className='text-center text-gray-500'>
+                                {searchQuery.trim() ? 'No movies found' : 'The future of Data Driven Information is here'}
+                            </Text>
+                        </View>
+                    ) : null
+                }
+            />
+
+        </View>
+
+    );
+}
+
+export default search
