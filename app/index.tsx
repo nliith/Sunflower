@@ -7,9 +7,8 @@ const HomeIndex = () => {
     if (isSignedIn) {
         return <Redirect href="/(tabs)" />
     }
-    return <Redirect href="/(tabs)" />
+    
+    return <Redirect href="/(auth)/welcome" />
 };
 
 export default HomeIndex;
-
-// <Redirect href="/(auth)/welcome" />
