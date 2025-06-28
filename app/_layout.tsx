@@ -2,7 +2,8 @@ import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Stack } from "expo-router";
 import { StatusBar } from "react-native";
-import './globals.css';
+import './globals.css'
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -13,6 +14,7 @@ if (!publishableKey) {
 }
 
 export default function RootLayout() {
+  useFrameworkReady();
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <StatusBar hidden={true} />
